@@ -53,11 +53,8 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Android SDK & NDK (Android only)
-        if: matrix.mobile == 'android'
-        uses: android-actions/setup-android@v3
-        with:
-          log-accepted-android-sdk-licenses: false
+      # ✅ Removed deprecated setup-android action
+      # tauri-action handles Android SDK/NDK automatically
 
       - name: Install Linux dependencies (Ubuntu Desktop only)
         if: matrix.platform == 'ubuntu-22.04' && matrix.mobile != 'android'
@@ -69,7 +66,7 @@ jobs:
         run: pnpm install
 
       - name: Build the app
-        uses: tauri-apps/tauri-action@v2
+        uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
