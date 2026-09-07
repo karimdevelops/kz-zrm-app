@@ -1,0 +1,82 @@
+name: Release App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            mobile: ''
+            args: ''
+          - platform: 'windows-latest'
+            mobile: ''
+            args: ''
+          - platform: 'ubuntu-22.04'
+            mobile: ''
+            args: ''
+          - platform: 'ubuntu-22.04'
+            mobile: 'android'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.mobile == 'android' && 'aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android' || '' }}
+
+      - name: Setup Java (Android only)
+        if: matrix.mobile == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK & NDK (Android only)
+        if: matrix.mobile == 'android'
+        uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
+
+      - name: Install Linux dependencies (Ubuntu Desktop only)
+        if: matrix.platform == 'ubuntu-22.04' && matrix.mobile != 'android'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev build-essential curl wget libssl-dev libsoup-3.0-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'Automated multi-platform release.'
+          ensureRelease: true
+          mobile: ${{ matrix.mobile }}
+          args: ${{ matrix.args }}
+          androidApk: ${{ matrix.mobile == 'android' }}
