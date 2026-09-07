@@ -10,54 +10,72 @@ import {
 } from "@/components/ui/attachment";
 import { Button } from "@/components/ui/button";
 import { truncateFilename } from "@/lib/utils";
-import { FileTextIcon, UploadIcon, XIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
+import {
+  FileQuestionMark,
+  FileTextIcon,
+  Globe,
+  UploadIcon,
+  XIcon,
+} from "lucide-react";
+import { useState } from "react";
 
 export function FileInput() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileData, setFileData] = useState<File | null>(null);
-
-  const fileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setFileData(file ? file : null);
-  };
+  const [filePath, setFilePath] = useState<string | null>(null);
+  const [hostedUrl, setHostedUrl] = useState<string | null>(null);
 
   const fileInputRemove = () => {
-    setFileData(null);
-    if (fileInputRef.current != null) fileInputRef.current.value = "";
+    setFilePath(null);
+  };
+
+  const fileInputClick = async (path: string) => {
+    await invoke<string>("unzip", {
+      zipPath: path,
+      folderName: "zrm",
+    });
+    const hostedUrl = await invoke<string>("host", {
+      folderName: "zrm",
+    });
+    setHostedUrl(hostedUrl);
+    setFilePath(null);
   };
 
   return (
     <div className="flex flex-col gap-2">
-      <label
-        htmlFor="file-upload"
+      <div
         className="bg-card text-foreground hover:bg-accent border-border group hover:border-primary flex cursor-pointer flex-col items-center justify-center gap-5 rounded-md border-2 border-dashed px-8 py-4 text-base font-medium shadow-xs transition"
+        onClick={async () => {
+          const selectedPath = await open({
+            multiple: false,
+            filters: [{ name: "ZIP", extensions: ["zip"] }],
+          });
+          setFilePath(selectedPath);
+        }}
       >
         <UploadIcon className="h-20 w-auto transition duration-500 group-hover:-translate-y-2" />
         Choose Zip Folder
-      </label>
-      <input
-        ref={fileInputRef}
-        id="file-upload"
-        type="file"
-        accept=".zip"
-        onChange={fileInputChange}
-        className="hidden"
-      />
+      </div>
       <Attachment className="w-full">
         <AttachmentMedia>
-          <FileTextIcon />
+          {filePath ? (
+            <FileTextIcon />
+          ) : hostedUrl ? (
+            <Globe />
+          ) : (
+            <FileQuestionMark />
+          )}
         </AttachmentMedia>
         <AttachmentContent className="flex flex-col items-center justify-center">
-          {fileData ? (
+          {filePath ? (
             <>
-              <AttachmentTitle>
-                {truncateFilename(fileData.name)}
-              </AttachmentTitle>
+              <AttachmentTitle>{truncateFilename(filePath)}</AttachmentTitle>
               <AttachmentDescription>
-                {fileData.type} · {fileData.size} bytes
+                {/* {filePath.type} · {filePath.size} bytes */}
               </AttachmentDescription>
             </>
+          ) : hostedUrl ? (
+            <ExternalLink link={hostedUrl} text={hostedUrl} size="sm" />
           ) : (
             <span className="flex flex-col items-center justify-center">
               <p>Not Sure? Visit:</p>
@@ -79,9 +97,12 @@ export function FileInput() {
         </AttachmentActions>
       </Attachment>
       <Button
-        disabled={fileData ? false : true}
+        disabled={filePath ? false : true}
         className="cursor-pointer"
         size={"xl"}
+        onClick={() => {
+          if (filePath) fileInputClick(filePath);
+        }}
       >
         Host
       </Button>
