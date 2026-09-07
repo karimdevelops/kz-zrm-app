@@ -9,15 +9,22 @@ import {
   AttachmentTitle,
 } from "@/components/ui/attachment";
 import { Button } from "@/components/ui/button";
+import { truncateFilename } from "@/lib/utils";
 import { FileTextIcon, UploadIcon, XIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 export function FileInput() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileData, setFileData] = useState<File | null>(null);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const fileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setFileData(file ? file : null);
+  };
+
+  const fileInputRemove = () => {
+    setFileData(null);
+    if (fileInputRef.current != null) fileInputRef.current.value = "";
   };
 
   return (
@@ -34,18 +41,18 @@ export function FileInput() {
         id="file-upload"
         type="file"
         accept=".zip"
-        onChange={handleChange}
+        onChange={fileInputChange}
         className="hidden"
       />
       <Attachment className="w-full">
         <AttachmentMedia>
           <FileTextIcon />
         </AttachmentMedia>
-        <AttachmentContent>
+        <AttachmentContent className="flex flex-col items-center justify-center">
           {fileData ? (
             <>
               <AttachmentTitle>
-                <span className="block truncate">{fileData.name}</span>
+                {truncateFilename(fileData.name)}
               </AttachmentTitle>
               <AttachmentDescription>
                 {fileData.type} · {fileData.size} bytes
@@ -65,10 +72,7 @@ export function FileInput() {
         <AttachmentActions>
           <AttachmentAction
             aria-label={`Remove folder`}
-            onClick={() => {
-              setFileData(null);
-              if (fileInputRef.current != null) fileInputRef.current.value = "";
-            }}
+            onClick={() => fileInputRemove()}
           >
             <XIcon />
           </AttachmentAction>

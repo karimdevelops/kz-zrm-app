@@ -5,8 +5,8 @@ import ExternalLink from "@/components/ExternalLink";
 function App() {
   return (
     <main className="bg-background dark text-foreground flex justify-center">
-      <div className="flex min-h-screen flex-col gap-8 px-4 text-center">
-        <div className="mt-auto">
+      <div className="flex min-h-screen flex-col gap-8 px-4">
+        <div className="mt-auto text-center">
           <h1 className="text-4xl font-extrabold">ez zrm</h1>
           <p className="text-sm">credit: @M_Hasyimy</p>
         </div>
