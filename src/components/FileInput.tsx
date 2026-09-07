@@ -62,8 +62,8 @@ export function FileInput() {
             <span className="flex flex-col items-center justify-center">
               <p>Not Sure? Visit:</p>
               <ExternalLink
-                text="ez-zrm.netlify.app"
-                link="https://ez-zrm.netlify.app/"
+                text="kz-zrm.netlify.app"
+                link="https://kz-zrm.netlify.app/"
                 size="sm"
               />
             </span>
