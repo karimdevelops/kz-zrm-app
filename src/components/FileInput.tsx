@@ -78,7 +78,11 @@ export function FileInput() {
           </AttachmentAction>
         </AttachmentActions>
       </Attachment>
-      <Button disabled={fileData ? false : true} size={"xl"}>
+      <Button
+        disabled={fileData ? false : true}
+        className="cursor-pointer"
+        size={"xl"}
+      >
         Host
       </Button>
     </div>
