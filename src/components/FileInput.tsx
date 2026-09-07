@@ -1,0 +1,80 @@
+import ExternalLink from "@/components/ExternalLink";
+import {
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "@/components/ui/attachment";
+import { Button } from "@/components/ui/button";
+import { FileTextIcon, UploadIcon, XIcon } from "lucide-react";
+import { useRef, useState } from "react";
+
+export function FileInput() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileData, setFileData] = useState<File | null>(null);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFileData(file ? file : null);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label
+        htmlFor="file-upload"
+        className="bg-card text-foreground hover:bg-accent border-border group hover:border-primary flex cursor-pointer flex-col items-center justify-center gap-5 rounded-md border-2 border-dashed px-8 py-4 text-base font-medium shadow-xs transition"
+      >
+        <UploadIcon className="h-20 w-auto transition duration-500 group-hover:-translate-y-2" />
+        Choose Zip Folder
+      </label>
+      <input
+        ref={fileInputRef}
+        id="file-upload"
+        type="file"
+        accept=".zip"
+        onChange={handleChange}
+        className="hidden"
+      />
+      <Attachment className="min-w-full">
+        <AttachmentMedia>
+          <FileTextIcon />
+        </AttachmentMedia>
+        <AttachmentContent>
+          {fileData ? (
+            <>
+              <AttachmentTitle>{fileData.name}</AttachmentTitle>
+              <AttachmentDescription>
+                {fileData.type} · {fileData.size} bytes
+              </AttachmentDescription>
+            </>
+          ) : (
+            <span className="flex items-center justify-center">
+              <p>Not Sure? Visit:</p>
+              <ExternalLink
+                text="ez-zrm.netlify.app"
+                link="https://ez-zrm.netlify.app/"
+                size="sm"
+              />
+            </span>
+          )}
+        </AttachmentContent>
+        <AttachmentActions>
+          <AttachmentAction
+            aria-label={`Remove folder`}
+            onClick={() => {
+              setFileData(null);
+              if (fileInputRef.current != null) fileInputRef.current.value = "";
+            }}
+          >
+            <XIcon />
+          </AttachmentAction>
+        </AttachmentActions>
+      </Attachment>
+      <Button disabled={fileData ? false : true} size={"xl"}>
+        Host
+      </Button>
+    </div>
+  );
+}
