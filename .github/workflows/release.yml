@@ -53,8 +53,37 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      # ✅ Removed deprecated setup-android action
-      # tauri-action handles Android SDK/NDK automatically
+      - name: Setup Android SDK & NDK
+        if: matrix.mobile == 'android'
+        uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
+
+      - name: Set Android environment variables
+        if: matrix.mobile == 'android'
+        run: |
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "NDK_HOME=$ANDROID_NDK_ROOT" >> $GITHUB_ENV
+
+      - name: Setup Android keystore
+        if: matrix.mobile == 'android'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          # Create keystore from base64 secret
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > $RUNNER_TEMP/keystore.jks
+
+          # Create keystore.properties file
+          mkdir -p src-tauri/gen/android
+          cat > src-tauri/gen/android/keystore.properties << EOF
+          storeFile=$RUNNER_TEMP/keystore.jks
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          keyPassword=$ANDROID_KEY_PASSWORD
+          EOF
 
       - name: Install Linux dependencies (Ubuntu Desktop only)
         if: matrix.platform == 'ubuntu-22.04' && matrix.mobile != 'android'
@@ -77,3 +106,14 @@ jobs:
           mobile: ${{ matrix.mobile }}
           args: ${{ matrix.args }}
           androidApk: ${{ matrix.mobile == 'android' }}
+
+      - name: Verify APK signature (Android only)
+        if: matrix.mobile == 'android'
+        run: |
+          APK_PATH="src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk"
+          if [ -f "$APK_PATH" ]; then
+            $ANDROID_HOME/build-tools/*/apksigner verify --verbose "$APK_PATH"
+            echo "✅ APK signature verified successfully!"
+          else
+            echo "⚠️ APK not found at expected path"
+          fi
