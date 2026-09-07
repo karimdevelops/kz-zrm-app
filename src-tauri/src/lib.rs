@@ -1,14 +1,39 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+use std::fs;
+use std::path::Path;
+use zip::ZipArchive;
+
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+async fn unzip(zip_path: String, folder_name: String) -> Result<String, String> {
+    let dest = Path::new("public").join(&folder_name);
+    fs::create_dir_all(&dest).map_err(|e| e.to_string())?;
+
+    let file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
+    let mut archive = ZipArchive::new(file).map_err(|e| e.to_string())?;
+
+    archive.extract(&dest).map_err(|e| e.to_string())?;
+    Ok(dest.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+async fn host(folder_name: String) -> Result<String, String> {
+    let dest = Path::new("public").join(&folder_name);
+    let ip = local_ip_address::local_ip().map_err(|e| e.to_string())?;
+
+    tauri::async_runtime::spawn(async move {
+        warp::serve(warp::fs::dir(dest))
+            .run(([0, 0, 0, 0], 8080))
+            .await;
+    });
+
+    Ok(format!("http://{}:8080/", ip))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![unzip, host])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
