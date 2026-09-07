@@ -37,20 +37,22 @@ export function FileInput() {
         onChange={handleChange}
         className="hidden"
       />
-      <Attachment className="min-w-full">
+      <Attachment className="w-full">
         <AttachmentMedia>
           <FileTextIcon />
         </AttachmentMedia>
         <AttachmentContent>
           {fileData ? (
             <>
-              <AttachmentTitle>{fileData.name}</AttachmentTitle>
+              <AttachmentTitle>
+                <span className="block truncate">{fileData.name}</span>
+              </AttachmentTitle>
               <AttachmentDescription>
                 {fileData.type} · {fileData.size} bytes
               </AttachmentDescription>
             </>
           ) : (
-            <span className="flex items-center justify-center">
+            <span className="flex flex-col items-center justify-center">
               <p>Not Sure? Visit:</p>
               <ExternalLink
                 text="ez-zrm.netlify.app"
