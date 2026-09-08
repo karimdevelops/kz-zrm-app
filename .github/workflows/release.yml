@@ -13,18 +13,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
-            mobile: ''
-            args: ''
-          - platform: 'windows-latest'
-            mobile: ''
-            args: ''
-          - platform: 'ubuntu-22.04'
-            mobile: ''
-            args: ''
-          - platform: 'ubuntu-22.04'
-            mobile: 'android'
-            args: ''
+          - platform: "macos-latest"
+            mobile: ""
+            args: ""
+          - platform: "windows-latest"
+            mobile: ""
+            args: ""
+          - platform: "ubuntu-22.04"
+            mobile: ""
+            args: ""
+          - platform: "ubuntu-22.04"
+            mobile: "android"
+            args: ""
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -50,8 +50,8 @@ jobs:
         if: matrix.mobile == 'android'
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
 
       - name: Setup Android SDK & NDK
         if: matrix.mobile == 'android'
@@ -100,20 +100,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: app-v__VERSION__
-          releaseName: 'App v__VERSION__'
-          releaseBody: 'Automated multi-platform release.'
+          releaseName: "App v__VERSION__"
+          releaseBody: "Automated multi-platform release."
           ensureRelease: true
           mobile: ${{ matrix.mobile }}
           args: ${{ matrix.args }}
           androidApk: ${{ matrix.mobile == 'android' }}
-
-      - name: Verify APK signature (Android only)
-        if: matrix.mobile == 'android'
-        run: |
-          APK_PATH="src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk"
-          if [ -f "$APK_PATH" ]; then
-            $ANDROID_HOME/build-tools/*/apksigner verify --verbose "$APK_PATH"
-            echo "✅ APK signature verified successfully!"
-          else
-            echo "⚠️ APK not found at expected path"
-          fi
