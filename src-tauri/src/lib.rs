@@ -1,5 +1,4 @@
 use std::fs;
-use std::path::Path;
 use tauri::Manager;
 use zip::ZipArchive;
 
@@ -21,8 +20,9 @@ async fn unzip(
 }
 
 #[tauri::command]
-async fn host(folder_name: String) -> Result<String, String> {
-    let dest = Path::new("public").join(&folder_name);
+async fn host(app: tauri::AppHandle, folder_name: String) -> Result<String, String> {
+    let base = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let dest = base.join(&folder_name);
     let ip = local_ip_address::local_ip().map_err(|e| e.to_string())?;
 
     tauri::async_runtime::spawn(async move {
