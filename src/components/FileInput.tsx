@@ -9,7 +9,6 @@ import {
   AttachmentTitle,
 } from "@/components/ui/attachment";
 import { Button } from "@/components/ui/button";
-import { truncateFilename } from "@/lib/utils";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
