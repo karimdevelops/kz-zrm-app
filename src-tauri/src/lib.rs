@@ -1,10 +1,16 @@
 use std::fs;
 use std::path::Path;
+use tauri::Manager;
 use zip::ZipArchive;
 
 #[tauri::command]
-async fn unzip(zip_path: String, folder_name: String) -> Result<String, String> {
-    let dest = Path::new("public").join(&folder_name);
+async fn unzip(
+    app: tauri::AppHandle,
+    zip_path: String,
+    folder_name: String,
+) -> Result<String, String> {
+    let base = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let dest = base.join(&folder_name);
     fs::create_dir_all(&dest).map_err(|e| e.to_string())?;
 
     let file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
