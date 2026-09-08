@@ -2,9 +2,22 @@
 
 ## Preview
 
-![preview 1](images/prev1.jpg)
-![preview 2](images/prev2.jpg)
-![preview 3](images/prev3.jpg)
+<div align="center">
+  <table>
+    <tr>
+      <td width="25%" align="center">
+        <img src="images/prev1.jpg" alt="preview 1" width="100%">
+      </td>
+      <td width="25%" align="center">
+        <img src="images/prev2.jpg" alt="preview 2" width="100%">
+      </td>
+      <td width="25%" align="center">
+        <img src="images/prev3.jpg" alt="preview 3" width="100%">
+      </td>
+    </tr>
+  </table>
+</div>
+
 
 ## Website
 For detail visit: https://kz-zrm.netlify.app/
