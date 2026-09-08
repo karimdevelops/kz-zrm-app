@@ -30,15 +30,20 @@ export function FileInput() {
   };
 
   const fileInputClick = async (path: string) => {
-    await invoke<string>("unzip", {
-      zipPath: path,
-      folderName: "zrm",
-    });
-    const hostedUrl = await invoke<string>("host", {
-      folderName: "zrm",
-    });
-    setHostedUrl(hostedUrl);
-    setFilePath(null);
+    try {
+      await invoke<string>("unzip", {
+        zipPath: path,
+        folderName: "zrm",
+      });
+      const url = await invoke<string>("host", {
+        folderName: "zrm",
+      });
+      setHostedUrl(url);
+      setFilePath(null);
+    } catch (err) {
+      setHostedUrl("ERROR: " + String(err));
+      setFilePath(null);
+    }
   };
 
   return (
