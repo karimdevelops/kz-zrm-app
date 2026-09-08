@@ -8,7 +8,6 @@ function App() {
       <div className="flex min-h-screen flex-col gap-8 px-4">
         <div className="mt-auto text-center">
           <h1 className="text-4xl font-extrabold">kz zrm</h1>
-          <p className="text-sm">credit: @M_Hasyimy</p>
         </div>
         <FileInput />
         <div className="mt-auto flex gap-4 self-center p-8">
