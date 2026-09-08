@@ -1,5 +1,5 @@
 export { cn } from "cn";
-export function truncateFilename(filename: string, maxLength = 20) {
+export function truncateFilename(filename: string, maxLength = 10) {
   const lastDot = filename.lastIndexOf(".");
   const ext = lastDot !== -1 ? filename.slice(lastDot) : "";
   const name = lastDot !== -1 ? filename.slice(0, lastDot) : filename;
