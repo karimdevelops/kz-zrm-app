@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { truncateFilename } from "@/lib/utils";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import { readFile } from "@tauri-apps/plugin-fs";
 import {
   FileQuestionMark,
   FileTextIcon,
@@ -31,21 +32,24 @@ export function FileInput() {
 
   const fileInputClick = async (path: string) => {
     try {
+      const bytes = await readFile(path);
       await invoke<string>("unzip", {
-        zipPath: path,
+        zipBytes: Array.from(bytes),
         folderName: "zrm",
       });
-      const url = await invoke<string>("host", {
-        folderName: "zrm",
-      });
+    } catch (err) {
+      setHostedUrl("UNZIP ERROR: " + String(err));
+      return;
+    }
+
+    try {
+      const url = await invoke<string>("host", { folderName: "zrm" });
       setHostedUrl(url);
       setFilePath(null);
     } catch (err) {
-      setHostedUrl("ERROR: " + String(err));
-      setFilePath(null);
+      setHostedUrl("HOST ERROR: " + String(err));
     }
   };
-
   return (
     <div className="flex flex-col gap-2">
       <div

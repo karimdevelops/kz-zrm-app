@@ -5,17 +5,21 @@ use zip::ZipArchive;
 #[tauri::command]
 async fn unzip(
     app: tauri::AppHandle,
-    zip_path: String,
+    zip_bytes: Vec<u8>,
     folder_name: String,
 ) -> Result<String, String> {
     let base = app.path().app_data_dir().map_err(|e| e.to_string())?;
     let dest = base.join(&folder_name);
     fs::create_dir_all(&dest).map_err(|e| e.to_string())?;
+    let temp_zip = base.join("temp_upload.zip");
+    fs::write(&temp_zip, &zip_bytes).map_err(|e| e.to_string())?;
 
-    let file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
+    let file = fs::File::open(&temp_zip).map_err(|e| e.to_string())?;
     let mut archive = ZipArchive::new(file).map_err(|e| e.to_string())?;
-
     archive.extract(&dest).map_err(|e| e.to_string())?;
+
+    let _ = fs::remove_file(&temp_zip);
+
     Ok(dest.to_string_lossy().to_string())
 }
 
@@ -39,6 +43,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![unzip, host])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

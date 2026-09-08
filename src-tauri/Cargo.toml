@@ -26,6 +26,7 @@ serde_json = "1"
 zip = "8.6.0"
 local-ip-address = "0.6.13"
 tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2.5.2"
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
 [profile.release]
