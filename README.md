@@ -24,7 +24,7 @@ For detail visit: https://kz-zrm.netlify.app/
 
 ## Overview
 
-This app was made to make it easier to host files for ps4 homebrew on local your devices without much setup.
+Host PS4 homebrew files on your local network with one click without any hassle.
 
 ## Supported Platform
 
