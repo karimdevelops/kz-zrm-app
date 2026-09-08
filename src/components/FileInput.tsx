@@ -78,7 +78,7 @@ export function FileInput() {
         <AttachmentContent className="flex flex-col items-center justify-center">
           {filePath ? (
             <>
-              <AttachmentTitle>{truncateFilename(filePath)}</AttachmentTitle>
+              <AttachmentTitle>Zip File Uploaded</AttachmentTitle>
               <AttachmentDescription>
                 {/* {filePath.type} · {filePath.size} bytes */}
               </AttachmentDescription>
