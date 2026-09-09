@@ -106,7 +106,7 @@ export function FileInput() {
       </Attachment>
       <Button
         disabled={filePath ? false : true}
-        className="cursor-pointer"
+        className="cursor-pointer duration-200 hover:scale-105"
         size={"xl"}
         onClick={() => {
           if (filePath) fileInputClick(filePath);
