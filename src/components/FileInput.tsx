@@ -62,7 +62,7 @@ export function FileInput() {
         }}
       >
         <UploadIcon className="h-20 w-auto transition duration-500 group-hover:-translate-y-2" />
-        Choose Zip Folder
+        Choose Zip File
       </div>
       <Attachment className="w-full">
         <AttachmentMedia>
